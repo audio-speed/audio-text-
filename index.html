@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAVESUBS Clone - Subtitle Converter</title>
+    <title>SAVESUBS - Subtitle Tool</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --bg-color: #1a1c2c;
             --card-bg: #24273d;
             --primary-purple: #8b5cf6;
-            --primary-hover: #7c3aed;
             --text-white: #ffffff;
             --text-gray: #94a3b8;
             --border-color: #334155;
@@ -25,224 +24,128 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-        }
-
-        /* Header / Logo Section */
-        header {
-            width: 100%;
             padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            max-width: 1000px;
         }
 
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-purple);
-            text-transform: uppercase;
-            letter-spacing: -2px;
-        }
-
-        .version {
-            font-size: 0.9rem;
-            color: var(--text-gray);
-            margin-left: 10px;
-        }
-
-        .menu-btn {
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        /* Main Container */
-        .container {
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        h1 {
-            font-size: 1.2rem;
-            color: #fb923c; /* Orange accent like your image */
-            margin-bottom: 30px;
-        }
-
-        /* Input Box */
+        .container { width: 100%; max-width: 600px; text-align: center; margin-top: 30px; }
+        .logo { font-size: 2.5rem; font-weight: 900; color: var(--primary-purple); margin-bottom: 20px; }
+        
         .search-box {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             display: flex;
-            align-items: center;
-            padding: 12px 15px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            background: transparent; border: none; color: white; flex: 1; outline: none; font-size: 1rem;
+        }
+
+        .btn-main {
+            background: var(--primary-purple);
+            color: white; border: none; width: 100%;
+            padding: 15px; border-radius: 8px;
+            font-weight: bold; cursor: pointer;
             margin-bottom: 20px;
         }
 
-        .search-box i { color: var(--text-gray); margin-right: 10px; }
-
-        .search-box input {
-            background: transparent;
-            border: none;
-            color: white;
-            flex: 1;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        /* Buttons */
-        .btn-download {
-            background: var(--primary-purple);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-bottom: 30px;
-            transition: 0.3s;
-        }
-
-        .btn-download:hover { background: var(--primary-hover); }
-
-        .divider {
-            color: var(--text-gray);
-            font-style: italic;
-            margin: 20px 0;
-            display: block;
-        }
-
-        .select-files-area {
+        .file-upload-area {
             border: 2px dashed var(--primary-purple);
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .select-files-area:hover { background: rgba(139, 92, 246, 0.1); }
-
-        .select-files-area i { color: var(--primary-purple); margin-right: 10px; }
-
-        .drag-text {
+            padding: 30px; border-radius: 10px;
+            cursor: pointer; display: block;
             color: var(--text-gray);
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: block;
         }
 
-        /* Bottom Steps Navigation */
-        .steps-container {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 60px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 30px;
+        #editorArea {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
         }
 
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-gray);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            gap: 10px;
-        }
-
-        .step-icon {
-            background: var(--card-bg);
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
+        textarea {
+            width: 100%; height: 200px;
+            background: #0f172a; color: #10b981;
             border: 1px solid var(--border-color);
-            font-size: 1.2rem;
-            transition: 0.3s;
+            padding: 10px; border-radius: 8px;
+            font-family: monospace;
         }
 
-        .step:hover .step-icon {
-            border-color: var(--primary-purple);
-            color: var(--primary-purple);
+        .steps {
+            display: flex; justify-content: space-around;
+            margin-top: 40px; border-top: 1px solid var(--border-color);
+            padding-top: 20px; width: 100%;
         }
 
-        .active-step .step-icon {
-            color: var(--primary-purple);
-            border-color: var(--primary-purple);
-        }
-
-        input[type="file"] { display: none; }
+        .step { color: var(--text-gray); font-size: 0.7rem; text-align: center; }
+        .step i { display: block; font-size: 1.5rem; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">SAVESUBS<span class="version">V9.2.0</span></div>
-        <div class="menu-btn"><i class="fas fa-bars"></i></div>
-    </header>
+    <div class="logo">SAVESUBS</div>
 
     <div class="container">
-        <h1># Online Subtitle Convert Tools #</h1>
-
         <div class="search-box">
-            <i class="fas fa-angle-double-down"></i>
-            <input type="text" placeholder="Search or enter any url to download">
-            <i class="fas fa-copy" style="cursor:pointer;"></i>
+            <input type="text" id="urlInput" placeholder="Enter video URL to fetch subtitles...">
         </div>
 
-        <button class="btn-download">DOWNLOAD</button>
+        <button class="btn-main" onclick="processURL()">DOWNLOAD / FETCH</button>
 
-        <span class="divider">OR</span>
-
-        <label for="fileInput" class="select-files-area">
-            <i class="fas fa-folder-open"></i> SELECT FILES
-            <span class="drag-text">or, drag and drop here</span>
+        <label for="fileInput" class="file-upload-area">
+            <i class="fas fa-file-upload"></i> SELECT SRT/TXT FILE
+            <br><span style="font-size: 0.8rem;">Click to upload and edit</span>
         </label>
-        <input type="file" id="fileInput" multiple>
+        <input type="file" id="fileInput" accept=".srt,.txt" style="display:none;">
 
-        <div class="steps-container">
-            <div class="step active-step">
-                <div class="step-icon"><i class="fas fa-sync-alt"></i></div>
-                <span>Convert SRT</span>
-            </div>
-            <div class="step">
-                <div class="step-icon"><i class="fas fa-edit"></i></div>
-                <span>Edit SRT</span>
-            </div>
-            <div class="step">
-                <div class="step-icon"><i class="fas fa-download"></i></div>
-                <span>Download SRT</span>
-            </div>
+        <div id="editorArea">
+            <h3 style="color: var(--primary-purple);">Subtitle Editor</h3>
+            <textarea id="srtContent"></textarea>
+            <button class="btn-main" style="background: #10b981; margin-top: 10px;" onclick="downloadSRT()">DOWNLOAD EDITED SRT</button>
+        </div>
+
+        <div class="steps">
+            <div class="step"><i class="fas fa-sync-alt"></i>CONVERT</div>
+            <div class="step"><i class="fas fa-edit"></i>EDIT</div>
+            <div class="step"><i class="fas fa-download"></i>DOWNLOAD</div>
         </div>
     </div>
 
     <script>
-        // ဖိုင်ရွေးလိုက်တဲ့အခါ လုပ်ဆောင်မယ့် Function (အစမ်း)
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if(this.files.length > 0) {
-                alert(this.files.length + " files selected. Ready to convert!");
+        // URL လုပ်ဆောင်ချက် (Fetch Logic အကြမ်း)
+        function processURL() {
+            const url = document.getElementById('urlInput').value;
+            if(url) {
+                alert("Fetching subtitles from: " + url + "\n(Note: Server-side API is needed for real YouTube fetching)");
+            } else {
+                alert("Please enter a URL");
             }
+        }
+
+        // ဖိုင်ဖတ်ပေးမယ့် Logic
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editorArea').style.display = 'block';
+                document.getElementById('srtContent').value = e.target.result;
+            };
+            reader.readAsText(file);
         });
 
-        // Download Button နှိပ်ရင် စာသားပါမပါ စစ်ဆေးခြင်း
-        document.querySelector('.btn-download').addEventListener('click', function() {
-            const input = document.querySelector('.search-box input').value;
-            if(!input) {
-                alert("Please enter a URL first!");
-            } else {
-                alert("Processing: " + input);
-            }
-        });
+        // ပြင်ထားတာကို Download ပြန်လုပ်နည်း
+        function downloadSRT() {
+            const content = document.getElementById('srtContent').value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "edited_subtitle.srt";
+            a.click();
+        }
     </script>
 </body>
 </html>
