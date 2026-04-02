@@ -4,164 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subtitle AI Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { 
-            --bg: #0b0e14; 
-            --card: #151921; 
-            --input: #1f242d; 
-            --accent: #00f28f; 
-            --text: #e1e1e1; 
-            --text-dim: #8b949e; 
+        :root {
+            --bg-dark: #0d1117;
+            --card-bg: #161b22;
+            --input-bg: #0d1117;
+            --accent-green: #00f28f;
+            --text-white: #ffffff;
+            --text-gray: #8b949e;
+            --border-color: #30363d;
         }
 
-        body { 
-            background-color: var(--bg); 
-            color: var(--text); 
-            font-family: 'Inter', sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            padding: 20px; 
-            margin: 0; 
-        }
-
-        .app-card { 
-            width: 100%; 
-            max-width: 450px; 
-            background: var(--card); 
-            border-radius: 24px; 
-            padding: 30px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
-        }
-
-        h2 { text-align: center; margin-bottom: 25px; }
-        .section { margin-bottom: 22px; }
-        label { display: block; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
-        
-        input, select, textarea { 
-            width: 100%; 
-            padding: 14px 15px; 
-            background: var(--input); 
-            border: 1px solid #30363d; 
-            border-radius: 12px; 
-            color: white; 
-            outline: none; 
-            box-sizing: border-box; 
-            font-size: 0.95rem;
-        }
-
-        /* Verify Button style */
-        .btn { 
-            border-radius: 12px; 
-            border: none; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px; 
-            width: 100%;
-        }
-
-        .btn-verify {
-            background: #238636; /* အစိမ်းရင့်ရောင် */
-            color: white;
-            padding: 10px;
-            font-size: 0.85rem;
-            margin-top: 10px;
-        }
-
-        .btn-verify:hover { background: #2ea043; }
-
-        .btn-primary { 
-            background: var(--accent); 
-            color: #050505; 
-            padding: 16px; 
-            margin-top: 15px;
-            font-size: 1rem;
-        }
-
-        .status { 
-            font-size: 0.8rem; 
-            color: #ff7b72; 
-            margin-top: 8px;
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
             display: flex;
-            align-items: center;
-            gap: 5px;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .key-wrapper { position: relative; }
-        .eye-btn {
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--accent-green);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        input[type="file"], input[type="text"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        /* Password Wrapper for Eye Icon */
+        .password-wrapper {
+            position: relative;
+        }
+
+        .eye-icon {
             position: absolute;
-            right: 15px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            color: var(--text-dim);
+            color: var(--text-gray);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-verify {
+            background-color: #238636;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .btn-verify:hover { background-color: #2ea043; }
+
+        .btn-start {
+            background-color: var(--accent-green);
+            color: #000;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        .btn-start:hover { transform: scale(1.02); }
+
+        .status {
+            font-size: 0.8rem;
+            color: #ff7b72;
+            margin-top: 5px;
+        }
+
+        textarea {
+            height: 100px;
+            resize: none;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
 
-<div class="app-card">
-    <h2>Subtitle AI Pro</h2>
+<div class="container">
+    <h2><i class="fas fa-robot"></i> Subtitle AI Pro</h2>
 
-    <div class="section">
+    <div class="input-group">
         <label>Input Files (MP3 / SRT)</label>
         <input type="file" multiple>
     </div>
 
-    <div class="section">
+    <div class="input-group">
         <label>Gemini API Key</label>
-        <div class="key-wrapper">
+        <div class="password-wrapper">
             <input type="password" id="apiKey" placeholder="Enter your key here...">
-            <i class="fas fa-eye eye-btn" id="eyeIcon" onclick="toggleKey()"></i>
+            <i class="fas fa-eye eye-icon" id="toggleEye" onclick="togglePassword()"></i>
         </div>
-        
-        <button class="btn btn-verify">
-            <i class="fas fa-check-circle"></i> Verify API Key
+        <button class="btn btn-verify" onclick="alert('Checking API Key...')">
+            <i class="fas fa-shield-check"></i> Verify API Key
         </button>
-
-        <div class="status" id="verifyStatus">
-            <i class="fas fa-circle-exclamation"></i> Not Verified
+        <div class="status" id="statusLabel">
+            <i class="fas fa-exclamation-circle"></i> Not Verified
         </div>
     </div>
 
-    <div class="section">
+    <div class="input-group">
         <label>AI Model</label>
-        <select>
+        <select id="modelSelect">
             <option>Gemini 3 Flash Preview</option>
             <option>Gemini 3.1 Pro Preview</option>
             <option>Gemini 3.1 Flash Lite Preview</option>
         </select>
     </div>
 
-    <div class="section">
+    <div class="input-group">
         <label>Output Format</label>
-        <select>
+        <select id="outputSelect">
             <option>Myanmar SRT (Translated)</option>
             <option>Original SRT (English)</option>
         </select>
     </div>
 
-    <button class="btn btn-primary">
-        <i class="fas fa-magic"></i> Start Translation
+    <button class="btn btn-start">
+        <i class="fas fa-play"></i> Start Translation
     </button>
+
+    <div class="input-group" style="margin-top: 20px;">
+        <label>Result Preview</label>
+        <textarea readonly placeholder="Waiting for process..."></textarea>
+    </div>
 </div>
 
 <script>
-    function toggleKey() {
-        const keyInput = document.getElementById('apiKey');
-        const eyeIcon = document.getElementById('eyeIcon');
-        if (keyInput.type === 'password') {
-            keyInput.type = 'text';
-            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+    // Password ပိတ်/ဖွင့် လုပ်တဲ့ Function
+    function togglePassword() {
+        const passwordInput = document.getElementById('apiKey');
+        const eyeIcon = document.getElementById('toggleEye');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
         } else {
-            keyInput.type = 'password';
-            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
         }
     }
 </script>
