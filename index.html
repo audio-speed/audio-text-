@@ -3,39 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subtitle AI Pro - Advanced</title>
+    <title>Subtitle AI Pro - Audio & Text</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg: #0d1117; --card: #161b22; --accent: #00f28f;
-            --input-bg: #0d1117; --text-dim: #8b949e;
+            --input-bg: #010409; --text-dim: #8b949e;
             --success: #3fb950; --error: #ff7b72;
         }
-        body { background-color: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .container { width: 100%; max-width: 480px; background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #30363d; }
-        .header { text-align: center; color: var(--accent); font-size: 1.5rem; margin-bottom: 25px; font-weight: bold; }
+        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .container { width: 100%; max-width: 480px; background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header { text-align: center; color: var(--accent); font-size: 1.6rem; margin-bottom: 25px; font-weight: bold; }
         .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-dim); }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; }
         input, select, textarea { width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid #30363d; border-radius: 10px; color: white; outline: none; box-sizing: border-box; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; }
         .btn-verify { background: #238636; color: white; }
         .btn-start { background: var(--accent); color: black; font-size: 1rem; margin-top: 20px; }
         .btn-clear { background: #30363d; color: white; flex: 1; }
         .btn-download { background: #1f6feb; color: white; flex: 1; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status-box { background: #010409; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid #30363d; font-size: 0.85rem; }
+        .status-box { background: #010409; padding: 12px; border-radius: 10px; margin-top: 15px; border: 1px solid #30363d; font-size: 0.85rem; }
         .flex-btns { display: flex; gap: 10px; margin-top: 15px; }
-        textarea { height: 150px; font-family: monospace; }
+        textarea { height: 180px; font-family: monospace; font-size: 0.95rem; }
+        #timeLeft { color: var(--accent); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><i class="fas fa-brain"></i> Subtitle AI Pro</div>
+    <div class="header"><i class="fas fa-robot"></i> Subtitle AI Pro</div>
 
     <div class="input-group">
-        <label>Input SRT File</label>
-        <input type="file" id="fileInput" accept=".srt">
+        <label>Input File (MP3 or SRT)</label>
+        <input type="file" id="fileInput" accept=".mp3, .srt">
     </div>
 
     <div class="input-group">
@@ -54,18 +55,18 @@
         </select>
     </div>
 
-    <button class="btn btn-start" id="startBtn" onclick="processTranslation()">
+    <button class="btn btn-start" id="startBtn" onclick="processTask()">
         <i class="fas fa-play"></i> Start Translation
     </button>
 
     <div class="status-box" id="timerBox" style="display: none;">
-        <div>Status: <span id="statusText">Idle</span></div>
-        <div>Estimated Time: <span id="timeLeft">0s</span></div>
+        <div>Status: <span id="statusText">Processing...</span></div>
+        <div>Estimated Time: <span id="timeLeft">Calculating...</span></div>
     </div>
 
     <div class="input-group" style="margin-top: 20px;">
-        <label>Translation Result</label>
-        <textarea id="outputBox" readonly placeholder="ရလဒ်ကို ဤနေရာတွင် ပြပေးပါမည်..."></textarea>
+        <label>Output Preview</label>
+        <textarea id="outputBox" readonly placeholder="Result will appear here..."></textarea>
     </div>
 
     <div class="flex-btns">
@@ -81,33 +82,39 @@
     async function checkKey() {
         const key = document.getElementById('apiKey').value;
         const status = document.getElementById('vStatus');
-        if (!key) return alert("Key ထည့်ပါ");
+        if (!key) return alert("Key အရင်ထည့်ပါ");
+        
+        status.innerText = "Checking...";
         try {
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
             if (res.ok) {
                 isVerified = true;
-                status.innerText = "Verified Successfully!";
+                status.innerText = "Verified! You can start now.";
                 status.style.color = "var(--success)";
                 document.getElementById('verifyBtn').style.display = "none";
             } else { throw new Error(); }
-        } catch (e) { status.innerText = "Invalid Key!"; }
+        } catch (e) { 
+            status.innerText = "Invalid API Key!"; 
+            status.style.color = "var(--error)";
+        }
     }
 
-    async function processTranslation() {
+    async function processTask() {
         const fileInput = document.getElementById('fileInput');
         const key = document.getElementById('apiKey').value;
         const output = document.getElementById('outputBox');
         const btn = document.getElementById('startBtn');
         const model = document.getElementById('modelSelect').value;
 
-        if (!fileInput.files[0] || !isVerified) return alert("File ရွေးပါ သို့မဟုတ် Key Verify အရင်လုပ်ပါ");
+        if (!fileInput.files[0] || !isVerified) return alert("File ရွေးပါ သို့မဟုတ် Key Verify လုပ်ပါ");
 
+        const file = fileInput.files[0];
         btn.disabled = true;
         document.getElementById('timerBox').style.display = "block";
         
-        // ကြာချိန်တွက်ချက်ခြင်း (ခန့်မှန်းခြေ စက္ကန့် ၃၀ ထားထားပါတယ်)
-        let seconds = 30;
-        document.getElementById('statusText').innerText = "Translating...";
+        // Start Timer Logic
+        let seconds = file.type.includes('audio') ? 60 : 30; 
+        document.getElementById('timeLeft').innerText = seconds + "s";
         timerInterval = setInterval(() => {
             seconds--;
             document.getElementById('timeLeft').innerText = seconds + "s";
@@ -117,46 +124,65 @@
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
+                let bodyData;
+                if (file.type.includes('audio')) {
+                    const base64 = e.target.result.split(',')[1];
+                    bodyData = {
+                        contents: [{
+                            parts: [
+                                { text: "Transcribe this audio into Myanmar SRT format with timestamps." },
+                                { inline_data: { mime_type: "audio/mp3", data: base64 } }
+                            ]
+                        }]
+                    };
+                } else {
+                    bodyData = {
+                        contents: [{
+                            parts: [{ text: "Translate this SRT content into Myanmar language. Keep format exactly:\n\n" + e.target.result }]
+                        }]
+                    };
+                }
+
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Translate this SRT to Myanmar. Keep format: \n\n" + e.target.result }] }]
-                    })
+                    body: JSON.stringify(bodyData)
                 });
+
                 const data = await response.json();
                 if (data.candidates) {
                     output.value = data.candidates[0].content.parts[0].text;
                     document.getElementById('downloadBtn').disabled = false;
                     document.getElementById('statusText').innerText = "Completed!";
-                    clearInterval(timerInterval);
+                } else {
+                    output.value = "Error: " + (data.error ? data.error.message : "Processing failed.");
                 }
             } catch (err) {
-                output.value = "Error occurred.";
+                output.value = "Connection Error occurred.";
             } finally {
+                clearInterval(timerInterval);
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-play"></i> Start Translation';
             }
         };
-        reader.readAsText(fileInput.files[0]);
+
+        if (file.type.includes('audio')) reader.readAsDataURL(file);
+        else reader.readAsText(file);
     }
 
     function downloadSRT() {
         const text = document.getElementById('outputBox').value;
-        if (!text) return;
-        const blob = new Blob([text], { type: 'text/plain' });
-        const anchor = document.createElement('a');
-        anchor.download = "translated_subtitle.srt";
-        anchor.href = window.URL.createObjectURL(blob);
-        anchor.click();
+        const blob = new Blob([text], { type: 'text/srt' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = "translated_subtitle.srt";
+        a.click();
     }
 
     function clearAll() {
         document.getElementById('fileInput').value = "";
         document.getElementById('outputBox').value = "";
-        document.getElementById('downloadBtn').disabled = true;
         document.getElementById('timerBox').style.display = "none";
-        document.getElementById('timeLeft').innerText = "0s";
+        document.getElementById('downloadBtn').disabled = true;
     }
 </script>
 
