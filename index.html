@@ -3,157 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Subtitle Translator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Subtitle AI Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        :root {
-            --bg: #0b0e14;
-            --card: #151921;
-            --input: #1f242d;
-            --accent: #00f28f;
-            --text: #e1e1e1;
-            --text-dim: #8b949e;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .app-card {
-            width: 100%;
-            max-width: 480px;
-            background: var(--card);
-            border-radius: 24px;
-            padding: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        h2 {
-            font-size: 1.4rem;
-            margin-bottom: 25px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-        }
-
+        :root { --bg: #0b0e14; --card: #151921; --input: #1f242d; --accent: #00f28f; --text: #e1e1e1; --text-dim: #8b949e; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .app-card { width: 100%; max-width: 450px; background: var(--card); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        h2 { text-align: center; margin-bottom: 25px; }
         .section { margin-bottom: 20px; }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            font-weight: 600;
-        }
-
-        /* Custom File Input */
-        .file-upload {
-            background: var(--input);
-            border: 2px dashed #30363d;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .file-upload:hover { border-color: var(--accent); }
-
-        /* API Key Input with Eye Icon */
-        .key-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            background: var(--input);
-            border: 1px solid #30363d;
-            border-radius: 12px;
-            color: white;
-            font-size: 0.95rem;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            cursor: pointer;
-            color: var(--text-dim);
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: #050505;
-        }
-        .btn-primary:hover { transform: scale(1.02); background: #00d980; }
-
-        .btn-secondary {
-            background: #21262d;
-            color: white;
-            border: 1px solid #30363d;
-        }
-
-        .grid-half {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .status {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            color: #ff7b72;
-        }
+        label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px 15px; background: var(--input); border: 1px solid #30363d; border-radius: 12px; color: white; outline: none; box-sizing: border-box; }
+        .btn { border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--accent); color: #050505; width: 100%; padding: 14px; margin-top: 10px; }
+        .status { font-size: 0.8rem; color: #ff7b72; }
     </style>
 </head>
 <body>
 
 <div class="app-card">
-    <h2><i class="fas fa-Closed Captioning" style="color:var(--accent)"></i> Subtitle AI Pro</h2>
-
+    <h2>Subtitle AI Pro</h2>
     <div class="section">
         <label>Input Files (MP3 / SRT)</label>
-        <input type="file" multiple accept=".mp3, .srt">
+        <input type="file" multiple>
     </div>
 
     <div class="section">
         <label>Gemini API Key</label>
-        <div class="key-container">
-            <input type="password" id="apiKey" placeholder="Enter your key here...">
-            <i class="fas fa-eye toggle-password" id="eyeIcon" onclick="toggleKey()"></i>
+        <div style="display: flex; gap: 8px;">
+            <div style="position: relative; flex: 1;">
+                <input type="password" id="apiKey" placeholder="Enter key...">
+                <i class="fas fa-eye" id="eyeIcon" onclick="toggleKey()" style="position: absolute; right: 12px; top: 35%; cursor: pointer; color: var(--text-dim);"></i>
+            </div>
+            <button class="btn btn-primary" style="width: auto; margin-top: 0; padding: 0 20px;">Verify</button>
         </div>
         <div class="status"><i class="fas fa-circle-exclamation"></i> Not Verified</div>
     </div>
@@ -172,45 +54,24 @@
         <select>
             <option>Myanmar SRT (Translated)</option>
             <option>Original SRT (English)</option>
-            <option>Both (Zip Package)</option>
         </select>
     </div>
 
-    <button class="btn btn-primary">
-        <i class="fas fa-wand-magic-sparkles"></i> Start Translation
-    </button>
-
-    <div class="section" style="margin-top: 25px;">
-        <label>Result Preview</label>
-        <textarea style="height: 120px;" readonly placeholder="AI processing results..."></textarea>
-    </div>
-
-    <div class="grid-half">
-        <button class="btn btn-secondary"><i class="fas fa-copy"></i> Copy</button>
-        <button class="btn btn-secondary" style="color: #ff7b72;"><i class="fas fa-trash"></i> Clear</button>
-    </div>
-
-    <button class="btn btn-primary" style="background: white; color: black; margin-top: 15px;">
-        <i class="fas fa-download"></i> Download SRT
-    </button>
+    <button class="btn btn-primary"><i class="fas fa-magic"></i> Start Translation</button>
 </div>
 
 <script>
     function toggleKey() {
         const keyInput = document.getElementById('apiKey');
         const eyeIcon = document.getElementById('eyeIcon');
-        
         if (keyInput.type === 'password') {
             keyInput.type = 'text';
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
+            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
         } else {
             keyInput.type = 'password';
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
+            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
 </script>
-
 </body>
 </html>
