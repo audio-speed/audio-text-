@@ -3,147 +3,162 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Subtitle AI Pro - V4</title>
+<title>Subtitle AI Pro V5</title>
 
 <style>
 :root {
-    --bg:#0d1117; --card:#161b22; --accent:#00f28f;
-    --input-bg:#0d1117; --text-dim:#8b949e;
-    --error:#ff7b72; --success:#3fb950;
+  --bg:#0d1117; --card:#161b22; --accent:#00f28f;
+  --input-bg:#0d1117; --text-dim:#8b949e;
+  --error:#ff7b72; --success:#3fb950;
 }
 body {
-    background:var(--bg); color:white; font-family:sans-serif;
-    display:flex; justify-content:center; padding:20px; margin:0;
+  background:var(--bg); color:white; font-family:sans-serif;
+  display:flex; justify-content:center; padding:20px; margin:0;
 }
 .container {
-    width:100%; max-width:460px; background:var(--card);
-    border-radius:20px; padding:30px;
+  width:100%; max-width:500px; background:var(--card);
+  border-radius:20px; padding:30px;
 }
 .header { text-align:center; color:var(--accent); font-size:1.6rem; margin-bottom:20px; }
 
-input,select,textarea,button {
-    width:100%; padding:12px; margin-top:10px;
-    border-radius:10px; border:none;
-}
+input, select, textarea, button { width:100%; padding:12px; margin-top:10px; border-radius:10px; border:none; }
+textarea { height:160px; margin-top:10px; font-family:'Courier New', monospace; font-size:0.9rem; }
 button { font-weight:bold; cursor:pointer; }
-
 .btn-start { background:var(--accent); color:black; }
 .btn-download { background:#238636; color:white; margin-top:10px; }
-
-textarea { height:160px; margin-top:10px; }
-
+.progress { height:6px; background:#30363d; border-radius:4px; overflow:hidden; margin-top:10px; }
+.progress-bar { height:100%; width:0%; background:#00f28f; transition:width 0.3s; }
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<div class="header">Subtitle AI Pro V4</div>
+<div class="header">Subtitle AI Pro V5</div>
 
-<!-- MP3 -->
-<label>Input MP3 (optional)</label>
+<!-- MP3 Upload -->
+<label>Input MP3</label>
 <input type="file" id="mp3Input" accept=".mp3">
 
-<!-- SRT -->
-<label>Input SRT</label>
-<input type="file" id="fileInput" accept=".srt">
+<!-- SRT Upload (Optional) -->
+<label>Input SRT (Optional)</label>
+<input type="file" id="srtInput" accept=".srt">
 
-<!-- Output Type -->
-<label>Select Output</label>
-<select id="outputType">
-    <option value="original">Original SRT</option>
-    <option value="mmsub">Myanmar (MMSUB)</option>
-</select>
-
-<!-- API -->
+<!-- API Key -->
 <label>API Key</label>
 <input type="password" id="apiKey">
 
-<button class="btn-start" onclick="processTranslation()">Start</button>
+<!-- Output type -->
+<label>Select Output</label>
+<select id="outputType">
+  <option value="original">Original SRT</option>
+  <option value="mmsub">Myanmar (MMSUB)</option>
+</select>
 
-<textarea id="outputBox" placeholder="Result here..."></textarea>
+<!-- Buttons -->
+<button class="btn-start" onclick="startProcess()">Start</button>
+<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+
+<textarea id="outputBox" placeholder="Result will appear here..."></textarea>
 
 <button class="btn-download" onclick="downloadResult()">Download</button>
-
 </div>
 
 <script>
 
+// Variables
 let originalSRT = "";
 let translatedSRT = "";
+let apiKey = "";
+let model = "gemini-3-flash-preview";
 
-// MAIN PROCESS
-async function processTranslation() {
-
-    const file = document.getElementById('fileInput').files[0];
-    const key = document.getElementById('apiKey').value;
-    const output = document.getElementById('outputBox');
-
-    if (!file) return alert("SRT ထည့်ပါ");
-
-    const text = await file.text();
-    originalSRT = text;
-
-    if (!key) {
-        output.value = text;
-        alert("API မထည့်ထားဘူး → Original ပြမယ်");
-        return;
-    }
-
-    output.value = "Translating...";
-
-    try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${key}`, {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body:JSON.stringify({
-                contents:[{
-                    parts:[{
-                        text:`Translate SRT to Myanmar. Keep format.\n\n${text}`
-                    }]
-                }]
-            })
-        });
-
-        const data = await res.json();
-
-        translatedSRT = data.candidates?.[0]?.content?.parts?.[0]?.text || "Error";
-
-        output.value = translatedSRT;
-
-    } catch(e) {
-        output.value = "Error!";
-    }
+// Utility - update progress
+function setProgress(percent) {
+    document.getElementById('progressBar').style.width = percent + "%";
 }
 
-// DOWNLOAD FUNCTION
+// Download function
 function downloadResult() {
-
     const type = document.getElementById('outputType').value;
-
     let content = "";
     let filename = "";
-
-    if (type === "original") {
-        content = originalSRT;
-        filename = "original.srt";
-    } else {
-        content = translatedSRT || "No MMSUB yet!";
-        filename = "mmsub.srt";
-    }
-
+    if (type==="original") { content = originalSRT; filename="original.srt"; }
+    else { content = translatedSRT || "No MMSUB yet"; filename="mmsub.srt"; }
     const blob = new Blob([content], {type:"text/plain"});
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-
+    a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
 }
 
-</script>
+// Main Process
+async function startProcess() {
 
+    const mp3File = document.getElementById('mp3Input').files[0];
+    const srtFile = document.getElementById('srtInput').files[0];
+    apiKey = document.getElementById('apiKey').value;
+    const outputBox = document.getElementById('outputBox');
+
+    if (!mp3File && !srtFile) return alert("MP3 or SRT ထည့်ပါ");
+
+    setProgress(10);
+    outputBox.value = "Processing...";
+
+    // Step1: If SRT uploaded, read it
+    if (srtFile) {
+        originalSRT = await srtFile.text();
+        setProgress(30);
+    } else {
+        // Step2: MP3 → SRT via Whisper API (placeholder)
+        outputBox.value = "Converting MP3 to SRT (using placeholder)...";
+        originalSRT = await mp3ToSRT(mp3File);
+        setProgress(50);
+    }
+
+    // Step3: Translate to MMSUB via Gemini API
+    if (apiKey) {
+        outputBox.value = "Translating to Myanmar (MMSUB)...";
+        translatedSRT = await translateSRT(originalSRT, apiKey);
+        outputBox.value = translatedSRT;
+        setProgress(100);
+    } else {
+        translatedSRT = "";
+        outputBox.value = originalSRT;
+        setProgress(100);
+    }
+}
+
+// Placeholder MP3 → SRT function
+async function mp3ToSRT(file) {
+    // Normally you would use Whisper / Google Speech API here
+    // For demo, we return fake SRT
+    const fakeSRT = `1
+00:00:00,000 --> 00:00:03,000
+This is a demo subtitle from MP3.
+
+2
+00:00:03,001 --> 00:00:06,000
+Replace this with real transcription.`;
+    return new Promise(resolve => setTimeout(()=>resolve(fakeSRT), 2000));
+}
+
+// Translate SRT to Myanmar
+async function translateSRT(srtContent, key) {
+    try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({
+                contents:[{parts:[{text:`Translate the following SRT to Myanmar. Keep timestamps and format:\n\n${srtContent}` }]}]
+            })
+        });
+        const data = await res.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Translation error!";
+    } catch(e) {
+        return "Translation failed!";
+    }
+}
+
+</script>
 </body>
 </html>
