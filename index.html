@@ -9,166 +9,122 @@
     <style>
         body { background-color: #080d1a; color: white; font-family: 'Inter', sans-serif; }
         .glass-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 32px; }
-        .input-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; cursor: pointer; transition: 0.2s; }
-        .input-box:hover { border-color: #3b82f6; }
+        .input-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; transition: 0.2s; }
+        .input-box:focus-within { border-color: #3b82f6; }
         .step-badge { background: #2563eb; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
-        
-        /* Tab System Style */
-        .tab-btn { flex: 1; padding: 12px; font-size: 13px; font-weight: 600; color: #94a3b8; border-radius: 12px; transition: 0.3s; }
-        .tab-btn.active { background: #38bdf8; color: #080d1a; }
-        
-        /* Modal Style */
-        .modal-overlay { background: rgba(0, 0, 0, 0.85); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #1e293b; width: 100%; max-width: 360px; border-radius: 28px; overflow: hidden; border: 1px solid #334155; }
-        .list-item { display: flex; items-center: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; border-bottom: 1px solid #334155; }
-        .list-item:hover { background: #2d3748; }
-        .radio-circle { width: 18px; height: 18px; border: 2px solid #4b5563; border-radius: 50%; position: relative; }
-        .active-radio .radio-circle { border-color: #f97316; }
-        .active-radio .radio-circle::after { content: ''; position: absolute; inset: 3px; background: #f97316; border-radius: 50%; }
-
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .btn-primary { background: #2563eb; transition: 0.3s; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: #10b981 !important; }
     </style>
 </head>
-<body class="flex flex-col items-center py-10 px-5">
+<body class="flex flex-col items-center justify-center min-h-screen p-5">
 
-    <div class="glass-card w-full max-w-[400px] p-7 shadow-2xl mb-10">
+    <div class="glass-card w-full max-w-[400px] p-8 shadow-2xl">
         
         <div class="mb-8">
-            <div class="flex items-center gap-3 mb-4">
+            <div class="flex items-center gap-3 mb-5">
                 <span class="step-badge">1</span>
-                <h2 class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">Configuration</h2>
+                <h2 class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">API Access</h2>
             </div>
-            <div class="input-box relative mb-3 p-4 flex items-center">
+            
+            <div class="input-box relative mb-4 p-4 flex items-center">
                 <i class="fas fa-key text-slate-500 mr-3"></i>
-                <input type="password" placeholder="Paste your Gemini API Key" class="bg-transparent w-full text-sm outline-none">
+                <input type="password" id="apiKey" placeholder="Paste your Gemini API Key" 
+                    class="bg-transparent w-full text-sm outline-none text-slate-200">
+                <i class="fas fa-eye text-slate-500 cursor-pointer hover:text-slate-300 ml-2" 
+                   id="toggleIcon" onclick="togglePassword()"></i>
             </div>
-            <div onclick="openModal('model')" class="input-box p-4 flex justify-between items-center text-sm mb-3">
-                <div class="flex items-center gap-3"><i class="fas fa-microchip text-slate-500"></i><span id="selectedModel">Gemini 2.5 Flash</span></div>
+
+            <button onclick="handleLoadModels()" id="loadBtn" class="btn-primary w-full text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+                <i class="fas fa-plug text-xs" id="btnIcon"></i> 
+                <span id="btnText">Load Models</span>
+            </button>
+        </div>
+
+        <div id="modelSection" class="hidden mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+            <p class="text-[10px] text-slate-500 font-bold uppercase mb-2 ml-1">Select AI Model</p>
+            <div class="input-box p-4 flex justify-between items-center text-sm">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-microchip text-blue-500"></i>
+                    <span id="currentModel">Gemini 1.5 Flash</span>
+                </div>
                 <i class="fas fa-chevron-down text-xs text-slate-500"></i>
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-8">
-            <div onclick="openModal('source')">
-                <p class="text-[10px] text-slate-500 font-bold uppercase mb-2 ml-1">Audio Language</p>
-                <div class="input-box p-3.5 flex justify-between items-center text-xs">
-                    <span id="srcLang">Auto-detect</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-500"></i>
-                </div>
-            </div>
-            <div onclick="openModal('target')">
-                <p class="text-[10px] text-slate-500 font-bold uppercase mb-2 ml-1">Output Language</p>
-                <div class="input-box p-3.5 flex justify-between items-center text-xs">
-                    <span id="tarLang">Burmese</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-500"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <div class="flex items-center gap-3 mb-4">
+        <div>
+            <div class="flex items-center gap-3 mb-5">
                 <span class="step-badge">2</span>
                 <h2 class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">Media Upload</h2>
             </div>
-            <div class="border-2 border-dashed border-slate-700 rounded-3xl p-10 flex flex-col items-center text-center hover:bg-slate-800/30 transition">
+            <div class="border-2 border-dashed border-slate-700 rounded-[24px] p-10 flex flex-col items-center text-center hover:bg-slate-800/30 transition cursor-pointer">
                 <i class="fas fa-cloud-upload-alt text-blue-500 text-2xl mb-3"></i>
-                <p class="text-xs font-semibold">Click or drag media file here</p>
-                <p class="text-[10px] text-slate-500 mt-2">MP4, MP3, WAV (Max 2GB)</p>
+                <p class="text-sm font-semibold text-slate-200">Click or drag file here</p>
+                <div class="mt-4 bg-white text-blue-600 px-4 py-1.5 rounded-full font-black italic text-[10px] shadow-md">
+                    MP4, MP3, WAV (MAX 2GB)
+                </div>
             </div>
         </div>
 
-        <button class="w-full bg-slate-800 text-slate-500 font-bold py-5 rounded-3xl text-xs uppercase tracking-widest opacity-50 cursor-not-allowed">
-            Start Processing
-        </button>
-    </div>
-
-    <div class="glass-card w-full max-w-[400px] p-7 shadow-2xl">
-        <h2 class="text-xl font-bold mb-1">Output</h2>
-        <h2 class="text-xl font-bold mb-6">Result</h2>
-        
-        <div class="flex items-center justify-between mb-5">
-            <p class="text-[11px] font-extrabold text-slate-500 tracking-wider">SUCCESS</p>
-            <button class="bg-[#1e293b] border border-slate-700 px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2">
-                <i class="fas fa-download"></i> <span id="dlLabel">Download .SRT</span>
-            </button>
-        </div>
-
-        <div class="bg-slate-900/50 p-1 rounded-2xl flex gap-1 mb-5 border border-slate-800">
-            <button onclick="switchTab('srt')" id="tab-srt" class="tab-btn active">SRT</button>
-            <button onclick="switchTab('transcript')" id="tab-transcript" class="tab-btn">Transcript</button>
-            <button onclick="switchTab('tts')" id="tab-tts" class="tab-btn">TTS Prompt</button>
-        </div>
-
-        <div id="resultContent" class="bg-[#050a14] border border-slate-800 rounded-2xl p-5 min-h-[200px] max-h-[300px] overflow-y-auto custom-scroll text-sm text-slate-300 leading-relaxed">
-            Loading result...
-        </div>
-    </div>
-
-    <div id="selectModal" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-content animate-in fade-in zoom-in duration-200">
-            <div class="p-5 border-b border-slate-700 flex justify-between items-center">
-                <h3 id="modalTitle" class="font-bold">Select Option</h3>
-                <i class="fas fa-times cursor-pointer text-slate-500" onclick="closeModal()"></i>
-            </div>
-            <div id="modalList" class="max-h-[400px] overflow-y-auto custom-scroll"></div>
-        </div>
     </div>
 
     <script>
-        const data = {
-            model: ['Gemini 2.5 Flash', 'Gemini 2.5 Pro', 'Gemini 2.0 Flash', 'Gemma 3 4B', 'Gemma 3 12B'],
-            source: ['Auto-detect Language', 'English', 'Burmese', 'Thai', 'Chinese', 'Japanese'],
-            target: ['Same as Audio', 'English', 'Burmese (မြန်မာဘာသာ)', 'Thai', 'Chinese', 'Spanish']
-        };
-
-        const resultTexts = {
-            srt: "1<br>00:00:06,000 --> 00:00:11,500<br>ဒါကို တောင်စောင်းကျောက်လို့ ခေါ်တယ်။",
-            transcript: "ဒါကို တောင်စောင်းကျောက်လို့ ခေါ်တယ်။ လာရောက်လည်ပတ်သူတွေက သူတို့ရဲ့ မှတ်ပုံတင်ကို တင်လိုက်တာနဲ့ သိပါလိမ့်မယ်။",
-            tts: "A narrative voice that starts calm and informative, transitions to a tone of disappointment..."
-        };
-
-        let currentModalType = '';
-
-        function openModal(type) {
-            currentModalType = type;
-            const title = type === 'model' ? 'Select AI Model' : (type === 'source' ? 'Audio Language' : 'Output Language');
-            document.getElementById('modalTitle').innerText = title;
+        // 1. Password Toggle Logic (Eye Icon)
+        function togglePassword() {
+            const passwordField = document.getElementById('apiKey');
+            const icon = document.getElementById('toggleIcon');
             
-            const list = document.getElementById('modalList');
-            list.innerHTML = '';
-            
-            data[type].forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `<span class="text-sm">${item}</span><div class="radio-circle"></div>`;
-                div.onclick = () => selectItem(item);
-                list.appendChild(div);
-            });
-            document.getElementById('selectModal').style.display = 'flex';
-        }
-
-        function selectItem(item) {
-            if(currentModalType === 'model') document.getElementById('selectedModel').innerText = item;
-            if(currentModalType === 'source') document.getElementById('srcLang').innerText = item;
-            if(currentModalType === 'target') document.getElementById('tarLang').innerText = item;
-            closeModal();
-        }
-
-        function closeModal(e) {
-            if(!e || e.target.id === 'selectModal' || e.target.classList.contains('fa-times')) {
-                document.getElementById('selectModal').style.display = 'none';
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         }
 
-        function switchTab(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + type).classList.add('active');
-            document.getElementById('resultContent').innerHTML = resultTexts[type];
-            document.getElementById('dlLabel').innerText = "Download ." + (type === 'srt' ? 'SRT' : (type === 'transcript' ? 'TXT' : 'Prompt'));
-        }
+        // 2. Load Models Logic (Button functionality)
+        async function handleLoadModels() {
+            const key = document.getElementById('apiKey').value;
+            const btn = document.getElementById('loadBtn');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const modelSection = document.getElementById('modelSection');
 
-        window.onload = () => switchTab('srt');
+            if (!key) {
+                alert("API Key ထည့်သွင်းပေးပါဦးဗျ။");
+                return;
+            }
+
+            // Start Loading State
+            btn.disabled = true;
+            btnText.innerText = "Connecting...";
+            btnIcon.className = "fas fa-spinner fa-spin text-xs";
+
+            try {
+                // Gemini API Validation
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+                const data = await response.json();
+
+                if (data.models) {
+                    // Success State
+                    btn.classList.add('btn-success');
+                    btnText.innerText = "Models Loaded Successfully";
+                    btnIcon.className = "fas fa-check-circle text-xs";
+                    
+                    // Show Model Selection
+                    modelSection.classList.remove('hidden');
+                } else {
+                    throw new Error("Invalid Key");
+                }
+            } catch (err) {
+                // Error State
+                alert("API Key မှားယွင်းနေပါသည်။ ပြန်လည်စစ်ဆေးပေးပါဗျ။");
+                btn.disabled = false;
+                btnText.innerText = "Load Models";
+                btnIcon.className = "fas fa-plug text-xs";
+            }
+        }
     </script>
 </body>
 </html>
