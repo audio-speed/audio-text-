@@ -1,201 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MP3 → SRT Translator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --accent-green: #00dc82;
+            --accent-hover: #00b368;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --border-color: #333;
+        }
 
-<style>
-body {
-  font-family: Arial;
-  background: #121212;
-  color: #fff;
-  padding: 20px;
-}
-.container {
-  max-width: 500px;
-  margin: auto;
-}
-.card {
-  background: #1e1e1e;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
-input, select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 6px;
-  border: none;
-}
-button {
-  background: #00c853;
-  color: white;
-  cursor: pointer;
-}
-button:disabled {
-  background: gray;
-}
-.progress {
-  height: 10px;
-  background: #333;
-  border-radius: 5px;
-  overflow: hidden;
-}
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: #00e676;
-}
-textarea {
-  width: 100%;
-  height: 120px;
-  margin-top: 10px;
-}
-</style>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-green);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-green {
+            background-color: var(--accent-green);
+            color: #000;
+        }
+
+        .btn-green:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .status-box {
+            background: #252525;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #333;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 30%; /* လိုအပ်သလို ပြောင်းလဲရန် */
+            height: 100%;
+            background: var(--accent-green);
+        }
+
+        .result-area {
+            height: 150px;
+            resize: none;
+            font-family: 'Courier New', monospace;
+        }
+
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <div class="header">
+        🎧 MP3 → SRT + Myanmar
+    </div>
 
-<h2>🎧 MP3 → SRT + Myanmar</h2>
+    <div class="input-group">
+        <label>Upload MP3</label>
+        <input type="file" style="color: #a0a0a0;">
+    </div>
 
-<div class="card">
-<label>Upload MP3</label>
-<input type="file" id="file">
+    <div class="input-group">
+        <label>API Key</label>
+        <input type="text" placeholder="Enter API Key">
+        <button class="btn btn-green">Verify</button>
+        <p style="font-size: 0.8rem; color: #ff4d4d; margin-top: 5px;">Not verified</p>
+    </div>
+
+    <div class="input-group">
+        <label>Model</label>
+        <select>
+            <option>Gemini 3 Flash Preview</option>
+            <option>Gemini 1.5 Pro</option>
+        </select>
+    </div>
+
+    <button class="btn btn-outline" style="background: #333; border: none; color: white;">
+        ▶ Start Translation
+    </button>
+
+    <div class="status-box">
+        <div style="display: flex; justify-content: space-between;">
+            <span>Processing...</span>
+            <span>Estimated: 2m</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>Result Preview</label>
+        <textarea class="result-area" readonly placeholder="Subtitle output will appear here..."></textarea>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+        <button class="btn btn-outline" style="flex: 1;">Clear</button>
+        <button class="btn btn-outline" style="flex: 1;">Copy</button>
+    </div>
+    
+    <button class="btn btn-green">Download SRT</button>
 </div>
-
-<div class="card">
-<label>API Key</label>
-<input type="text" id="apiKey" placeholder="Enter API Key">
-<button onclick="verifyAPI()">Verify</button>
-<p id="apiStatus">Not verified</p>
-</div>
-
-<div class="card">
-<label>Model</label>
-<select id="model">
-<option>Gemini 3 Flash Preview</option>
-<option>Gemini 3.1 Pro Preview</option>
-<option>Gemini 3.1 Flash Lite Preview</option>
-</select>
-</div>
-
-<div class="card">
-<label>Output</label>
-<select id="format">
-<option>Both</option>
-<option>Original SRT</option>
-<option>Myanmar SRT</option>
-</select>
-</div>
-
-<div class="card">
-<button id="startBtn" onclick="startProcess()" disabled>
-▶️ Start Translation
-</button>
-</div>
-
-<div class="card">
-<div class="progress">
-<div class="progress-bar" id="progressBar"></div>
-</div>
-<p id="status">Idle</p>
-<p id="time">Estimated: -</p>
-</div>
-
-<div class="card">
-<label>Result Preview</label>
-<textarea id="result"></textarea>
-<button onclick="clearText()">Clear</button>
-<button onclick="copyText()">Copy</button>
-</div>
-
-<div class="card">
-<button onclick="downloadFile()">Download</button>
-</div>
-
-</div>
-
-<script>
-let verified = false;
-let fileUploaded = false;
-
-document.getElementById("file").addEventListener("change", () => {
-  fileUploaded = true;
-  checkReady();
-});
-
-function verifyAPI() {
-  let key = document.getElementById("apiKey").value;
-  if (key.length > 5) {
-    verified = true;
-    document.getElementById("apiStatus").innerText = "✅ Connected";
-  } else {
-    verified = false;
-    document.getElementById("apiStatus").innerText = "❌ Failed";
-  }
-  checkReady();
-}
-
-function checkReady() {
-  document.getElementById("startBtn").disabled = !(verified && fileUploaded);
-}
-
-function startProcess() {
-  let progress = 0;
-  let bar = document.getElementById("progressBar");
-
-  let interval = setInterval(() => {
-    progress += 10;
-    bar.style.width = progress + "%";
-
-    document.getElementById("status").innerText =
-      progress < 40 ? "Uploading..." :
-      progress < 70 ? "Transcribing..." :
-      "Translating...";
-
-    document.getElementById("time").innerText =
-      "Estimated: " + (100 - progress) / 10 + " sec";
-
-    if (progress >= 100) {
-      clearInterval(interval);
-      document.getElementById("status").innerText = "✅ Done";
-
-      document.getElementById("result").value =
-`1
-00:00:01,000 --> 00:00:03,000
-Hello world
-
-1
-00:00:01,000 --> 00:00:03,000
-မင်္ဂလာပါ ကမ္ဘာကြီး`;
-    }
-
-  }, 500);
-}
-
-function clearText() {
-  document.getElementById("result").value = "";
-}
-
-function copyText() {
-  let text = document.getElementById("result");
-  text.select();
-  document.execCommand("copy");
-  alert("Copied!");
-}
-
-function downloadFile() {
-  let blob = new Blob([document.getElementById("result").value], {type: "text/plain"});
-  let a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "subtitle.srt";
-  a.click();
-}
-</script>
 
 </body>
 </html>
