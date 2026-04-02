@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subtitle AI Pro - MP3 & SRT</title>
+    <title>Subtitle AI Pro - Advanced</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg: #0d1117; --card: #161b22; --accent: #00f28f;
-            --input-bg: #010409; --text-dim: #8b949e;
+            --input-bg: #0d1117; --text-dim: #8b949e;
             --success: #3fb950; --error: #ff7b72;
         }
         body { background-color: var(--bg); color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .container { width: 100%; max-width: 480px; background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .container { width: 100%; max-width: 480px; background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #30363d; }
         .header { text-align: center; color: var(--accent); font-size: 1.5rem; margin-bottom: 25px; font-weight: bold; }
         .input-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-dim); }
@@ -23,20 +23,19 @@
         .btn-clear { background: #30363d; color: white; flex: 1; }
         .btn-download { background: #1f6feb; color: white; flex: 1; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status-box { background: #010409; padding: 12px; border-radius: 10px; margin-top: 15px; border: 1px solid #30363d; font-size: 0.85rem; line-height: 1.6; }
+        .status-box { background: #010409; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid #30363d; font-size: 0.85rem; }
         .flex-btns { display: flex; gap: 10px; margin-top: 15px; }
-        textarea { height: 180px; font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.5; }
-        #timeLeft { color: var(--accent); font-weight: bold; }
+        textarea { height: 150px; font-family: monospace; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><i class="fas fa-headphones-simple"></i> Subtitle AI Pro</div>
+    <div class="header"><i class="fas fa-brain"></i> Subtitle AI Pro</div>
 
     <div class="input-group">
-        <label>Input File (MP3 သို့မဟုတ် SRT)</label>
-        <input type="file" id="fileInput" accept=".mp3, .srt">
+        <label>Input SRT File</label>
+        <input type="file" id="fileInput" accept=".srt">
     </div>
 
     <div class="input-group">
@@ -49,28 +48,29 @@
     <div class="input-group">
         <label>Select AI Model</label>
         <select id="modelSelect">
-            <option value="gemini-1.5-flash">Gemini 1.5 Flash (MP3 အတွက် ပိုသင့်တော်)</option>
-            <option value="gemini-1.5-pro">Gemini 1.5 Pro (ပိုမိုတိကျ)</option>
+            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview</option>
+            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+            <option value="gemini-3.1-flash-lite-preview">Gemini 3.1 Flash Lite Preview</option>
         </select>
     </div>
 
     <button class="btn btn-start" id="startBtn" onclick="processTranslation()">
-        <i class="fas fa-wand-magic-sparkles"></i> Start Processing
+        <i class="fas fa-play"></i> Start Translation
     </button>
 
     <div class="status-box" id="timerBox" style="display: none;">
-        <div><i class="fas fa-spinner fa-spin"></i> Status: <span id="statusText">Idle</span></div>
-        <div><i class="fas fa-clock"></i> Estimated: <span id="timeLeft">Calculating...</span></div>
+        <div>Status: <span id="statusText">Idle</span></div>
+        <div>Estimated Time: <span id="timeLeft">0s</span></div>
     </div>
 
     <div class="input-group" style="margin-top: 20px;">
-        <label>Output Preview</label>
+        <label>Translation Result</label>
         <textarea id="outputBox" readonly placeholder="ရလဒ်ကို ဤနေရာတွင် ပြပေးပါမည်..."></textarea>
     </div>
 
     <div class="flex-btns">
         <button class="btn btn-clear" onclick="clearAll()"><i class="fas fa-trash"></i> Clear</button>
-        <button class="btn btn-download" id="downloadBtn" onclick="downloadResult()" disabled><i class="fas fa-download"></i> Download</button>
+        <button class="btn btn-download" id="downloadBtn" onclick="downloadSRT()" disabled><i class="fas fa-download"></i> Download</button>
     </div>
 </div>
 
@@ -100,88 +100,63 @@
         const btn = document.getElementById('startBtn');
         const model = document.getElementById('modelSelect').value;
 
-        if (!fileInput.files[0] || !isVerified) return alert("ဖိုင်ရွေးပါ သို့မဟုတ် Key အရင် Verify လုပ်ပါ");
+        if (!fileInput.files[0] || !isVerified) return alert("File ရွေးပါ သို့မဟုတ် Key Verify အရင်လုပ်ပါ");
 
-        const file = fileInput.files[0];
         btn.disabled = true;
         document.getElementById('timerBox').style.display = "block";
-        document.getElementById('statusText').innerText = "AI Processing...";
-
-        let timeLeft = file.type.includes('audio') ? 60 : 30; // MP3 ဆိုရင် စက္ကန့် ၆၀ ခန့်မှန်း
+        
+        // ကြာချိန်တွက်ချက်ခြင်း (ခန့်မှန်းခြေ စက္ကန့် ၃၀ ထားထားပါတယ်)
+        let seconds = 30;
+        document.getElementById('statusText').innerText = "Translating...";
         timerInterval = setInterval(() => {
-            if(timeLeft > 0) {
-                timeLeft--;
-                document.getElementById('timeLeft').innerText = timeLeft + "s";
-            }
+            seconds--;
+            document.getElementById('timeLeft').innerText = seconds + "s";
+            if (seconds <= 0) clearInterval(timerInterval);
         }, 1000);
 
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                let prompt = "";
-                let bodyData = {};
-
-                if (file.type.includes('audio')) {
-                    // MP3 အတွက် Logic
-                    const base64Data = e.target.result.split(',')[1];
-                    prompt = "Transcribe this audio into Myanmar SRT format with timestamps.";
-                    bodyData = {
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inline_data: { mime_type: "audio/mp3", data: base64Data } }
-                            ]
-                        }]
-                    };
-                } else {
-                    // SRT အတွက် Logic
-                    prompt = "Translate this SRT file to Myanmar. Keep format exactly: \n\n" + e.target.result;
-                    bodyData = { contents: [{ parts: [{ text: prompt }] }] };
-                }
-
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyData)
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: "Translate this SRT to Myanmar. Keep format: \n\n" + e.target.result }] }]
+                    })
                 });
-
                 const data = await response.json();
                 if (data.candidates) {
                     output.value = data.candidates[0].content.parts[0].text;
                     document.getElementById('downloadBtn').disabled = false;
-                    document.getElementById('statusText').innerText = "Success!";
-                } else {
-                    output.value = "Error: API မှ ပြန်စာမရပါ။";
+                    document.getElementById('statusText').innerText = "Completed!";
+                    clearInterval(timerInterval);
                 }
             } catch (err) {
-                output.value = "Error occurred: " + err.message;
+                output.value = "Error occurred.";
             } finally {
-                clearInterval(timerInterval);
                 btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Start Translation';
             }
         };
-
-        if (file.type.includes('audio')) {
-            reader.readAsDataURL(file); // MP3 ကို Base64 အနေနဲ့ဖတ်
-        } else {
-            reader.readAsText(file); // SRT ကို Text အနေနဲ့ဖတ်
-        }
+        reader.readAsText(fileInput.files[0]);
     }
 
-    function downloadResult() {
+    function downloadSRT() {
         const text = document.getElementById('outputBox').value;
-        const blob = new Blob([text], { type: 'text/srt' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "ai_output.srt";
-        a.click();
+        if (!text) return;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const anchor = document.createElement('a');
+        anchor.download = "translated_subtitle.srt";
+        anchor.href = window.URL.createObjectURL(blob);
+        anchor.click();
     }
 
     function clearAll() {
         document.getElementById('fileInput').value = "";
         document.getElementById('outputBox').value = "";
-        document.getElementById('timerBox').style.display = "none";
         document.getElementById('downloadBtn').disabled = true;
+        document.getElementById('timerBox').style.display = "none";
+        document.getElementById('timeLeft').innerText = "0s";
     }
 </script>
 
