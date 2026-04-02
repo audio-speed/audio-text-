@@ -7,22 +7,108 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #0b0e14; --card: #151921; --input: #1f242d; --accent: #00f28f; --text: #e1e1e1; --text-dim: #8b949e; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .app-card { width: 100%; max-width: 450px; background: var(--card); border-radius: 24px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        :root { 
+            --bg: #0b0e14; 
+            --card: #151921; 
+            --input: #1f242d; 
+            --accent: #00f28f; 
+            --text: #e1e1e1; 
+            --text-dim: #8b949e; 
+        }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px; 
+            margin: 0; 
+        }
+
+        .app-card { 
+            width: 100%; 
+            max-width: 450px; 
+            background: var(--card); 
+            border-radius: 24px; 
+            padding: 30px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
+        }
+
         h2 { text-align: center; margin-bottom: 25px; }
-        .section { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 12px 15px; background: var(--input); border: 1px solid #30363d; border-radius: 12px; color: white; outline: none; box-sizing: border-box; }
-        .btn { border-radius: 12px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--accent); color: #050505; width: 100%; padding: 14px; margin-top: 10px; }
-        .status { font-size: 0.8rem; color: #ff7b72; }
+        .section { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 10px; font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 14px 15px; 
+            background: var(--input); 
+            border: 1px solid #30363d; 
+            border-radius: 12px; 
+            color: white; 
+            outline: none; 
+            box-sizing: border-box; 
+            font-size: 0.95rem;
+        }
+
+        /* Verify Button style */
+        .btn { 
+            border-radius: 12px; 
+            border: none; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            width: 100%;
+        }
+
+        .btn-verify {
+            background: #238636; /* အစိမ်းရင့်ရောင် */
+            color: white;
+            padding: 10px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .btn-verify:hover { background: #2ea043; }
+
+        .btn-primary { 
+            background: var(--accent); 
+            color: #050505; 
+            padding: 16px; 
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+
+        .status { 
+            font-size: 0.8rem; 
+            color: #ff7b72; 
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .key-wrapper { position: relative; }
+        .eye-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-dim);
+        }
     </style>
 </head>
 <body>
 
 <div class="app-card">
     <h2>Subtitle AI Pro</h2>
+
     <div class="section">
         <label>Input Files (MP3 / SRT)</label>
         <input type="file" multiple>
@@ -30,14 +116,18 @@
 
     <div class="section">
         <label>Gemini API Key</label>
-        <div style="display: flex; gap: 8px;">
-            <div style="position: relative; flex: 1;">
-                <input type="password" id="apiKey" placeholder="Enter key...">
-                <i class="fas fa-eye" id="eyeIcon" onclick="toggleKey()" style="position: absolute; right: 12px; top: 35%; cursor: pointer; color: var(--text-dim);"></i>
-            </div>
-            <button class="btn btn-primary" style="width: auto; margin-top: 0; padding: 0 20px;">Verify</button>
+        <div class="key-wrapper">
+            <input type="password" id="apiKey" placeholder="Enter your key here...">
+            <i class="fas fa-eye eye-btn" id="eyeIcon" onclick="toggleKey()"></i>
         </div>
-        <div class="status"><i class="fas fa-circle-exclamation"></i> Not Verified</div>
+        
+        <button class="btn btn-verify">
+            <i class="fas fa-check-circle"></i> Verify API Key
+        </button>
+
+        <div class="status" id="verifyStatus">
+            <i class="fas fa-circle-exclamation"></i> Not Verified
+        </div>
     </div>
 
     <div class="section">
@@ -57,7 +147,9 @@
         </select>
     </div>
 
-    <button class="btn btn-primary"><i class="fas fa-magic"></i> Start Translation</button>
+    <button class="btn btn-primary">
+        <i class="fas fa-magic"></i> Start Translation
+    </button>
 </div>
 
 <script>
@@ -73,5 +165,6 @@
         }
     }
 </script>
+
 </body>
 </html>
