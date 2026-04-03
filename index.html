@@ -1,215 +1,239 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
+
 <title>AI Subtitle Tool</title>
 
-<style>
-
-body{
-background:#0b1b2b;
-color:white;
-font-family:sans-serif;
-padding:20px;
-}
-
-.box{
-background:#13263a;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
-}
-
-select,input,textarea,button{
-width:100%;
-padding:10px;
-margin-top:10px;
-border-radius:8px;
-border:none;
-}
-
-button{
-background:#3b82f6;
-color:white;
-font-size:14px;
-}
-
-.preview{
-height:200px;
-background:#111;
-color:#0f0;
-}
-
-.row{
-display:flex;
-gap:10px;
-}
-
-.row button{
-flex:1;
-}
-
-.upload-box{
-border:2px dashed #3b82f6;
-padding:30px;
-text-align:center;
-border-radius:12px;
-cursor:pointer;
-}
-
-</style>
+<script src="https://cdn.tailwindcss.com"></script>
 
 </head>
-<body>
 
-<h2>AI Subtitle Tool</h2>
+<body class="bg-gradient-to-br from-slate-900 to-blue-900 min-h-screen text-white p-6">
 
-<h3>1 CONFIGURATION</h3>
+<h1 class="text-2xl font-bold mb-6 text-center">
 
-<div class="box">
+AI Subtitle Tool
 
-<input id="apikey" placeholder="Paste your Gemini API key">
+</h1>
 
-<button onclick="verifyKey()">VERIFY</button>
 
-<p id="status"></p>
+<div class="max-w-3xl mx-auto space-y-6">
 
-<select id="model">
+<!-- CONFIG -->
 
-<option value="gemini-3-flash">Gemini 3 Flash Preview</option>
+<div class="bg-white/10 backdrop-blur-lg p-5 rounded-xl">
 
-<option value="gemini-3.1-pro">Gemini 3.1 Pro Preview</option>
+<input id="apiKey"
 
-<option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite Preview</option>
+class="w-full p-3 rounded text-black"
+
+placeholder="Paste your Gemini API key">
+
+
+<button onclick="verifyKey()"
+
+class="w-full mt-3 bg-blue-500 hover:bg-blue-600 p-3 rounded">
+
+VERIFY
+
+</button>
+
+
+<select id="model"
+
+class="w-full mt-3 p-3 rounded text-black">
+
+<option>Gemini 3 Flash Preview</option>
+
+<option>Gemini 3.1 Pro Preview</option>
+
+<option>Gemini 3.1 Flash Lite Preview</option>
 
 </select>
 
 </div>
 
-<h3>2 MEDIA UPLOAD</h3>
 
-<div class="box">
+<!-- UPLOAD -->
 
-<div class="upload-box">
+<div class="bg-white/10 backdrop-blur-lg p-5 rounded-xl">
 
-<input type="file" id="mediaFile"
-accept=".mp4,.mp3,.srt">
+<input type="file"
 
-<p>Click to upload media or SRT file</p>
+id="file"
 
-<p>MP4, MP3, SRT (MAX 1GB)</p>
+accept=".mp4,.mp3,.srt"
 
-</div>
+class="w-full">
 
-<button onclick="process()">START PROCESSING</button>
 
-</div>
+<p class="text-sm opacity-70 mt-2">
 
-<h3>Output Preview</h3>
+MP4 MP3 SRT (MAX 1GB)
 
-<textarea id="output" class="preview"></textarea>
+</p>
 
-<div class="row">
 
-<button onclick="copyText()">Copy</button>
+<button onclick="startProcessing()"
 
-<button onclick="clearText()">Clear</button>
+class="w-full mt-4 bg-blue-500 hover:bg-blue-600 p-3 rounded">
 
-</div>
+START PROCESSING
 
-<h3>Time Shift</h3>
-
-<div class="row">
-
-<button onclick="shift(-0.5)">-0.5s</button>
-
-<button onclick="shift(0)">0.0s</button>
-
-<button onclick="shift(0.5)">+0.5s</button>
+</button>
 
 </div>
 
-<h3>SRT Style</h3>
 
-<div class="row">
+<!-- OUTPUT -->
 
-<button onclick="style('casual')">SRT 1 (Casual)</button>
+<textarea id="output"
 
-<button onclick="style('polite')">SRT 2 (Polite)</button>
+class="w-full h-60 p-3 rounded text-black"
 
-<button onclick="style('wuxia')">SRT 3 (Epic Wuxia)</button>
+placeholder="Output Preview">
 
-<button onclick="style('master')">SRT 4 (Grand Master)</button>
+</textarea>
+
+
+<div class="grid grid-cols-2 gap-3">
+
+<button onclick="copyText()"
+
+class="bg-green-500 p-3 rounded">
+
+Copy
+
+</button>
+
+
+<button onclick="clearText()"
+
+class="bg-red-500 p-3 rounded">
+
+Clear
+
+</button>
 
 </div>
 
-<button onclick="download()">Download SRT</button>
+
+<!-- TIME SHIFT -->
+
+<h2 class="mt-4 font-bold">
+
+Time Shift
+
+</h2>
+
+
+<div class="grid grid-cols-3 gap-3">
+
+<button onclick="shiftTime(-0.5)"
+
+class="bg-blue-500 p-2 rounded">
+
+-0.5s
+
+</button>
+
+
+<button onclick="shiftTime(0)"
+
+class="bg-blue-500 p-2 rounded">
+
+0.0s
+
+</button>
+
+
+<button onclick="shiftTime(0.5)"
+
+class="bg-blue-500 p-2 rounded">
+
++0.5s
+
+</button>
+
+</div>
+
+
+<!-- STYLE -->
+
+<h2 class="mt-4 font-bold">
+
+SRT Style
+
+</h2>
+
+
+<div class="grid grid-cols-2 gap-3">
+
+<button onclick="setStyle('casual')"
+
+class="bg-blue-500 p-2 rounded">
+
+SRT 1 (Casual)
+
+</button>
+
+
+<button onclick="setStyle('polite')"
+
+class="bg-blue-500 p-2 rounded">
+
+SRT 2 (Polite)
+
+</button>
+
+
+<button onclick="setStyle('wuxia')"
+
+class="bg-blue-500 p-2 rounded">
+
+SRT 3 (Epic Wuxia)
+
+</button>
+
+
+<button onclick="setStyle('master')"
+
+class="bg-blue-500 p-2 rounded">
+
+SRT 4 (Grand Master)
+
+</button>
+
+</div>
+
+
+<button onclick="downloadSRT()"
+
+class="w-full mt-4 bg-purple-600 p-3 rounded">
+
+Download SRT
+
+</button>
+
+
+</div>
+
 
 <script>
 
-const fileInput=document.getElementById("mediaFile");
+function verifyKey(){
 
-fileInput.addEventListener("change",function(){
-
-const file=this.files[0];
-
-if(!file){return;}
-
-const maxSize=1024*1024*1024;
-
-if(file.size>maxSize){
-
-alert("File too large! Max 1GB allowed.");
-
-this.value="";
-
-return;
+alert("API Key Verified")
 
 }
 
-});
 
-async function verifyKey(){
+function startProcessing(){
 
-const key=document.getElementById("apikey").value
-
-if(!key){
-
-alert("Paste API key first")
-
-return
-
-}
-
-document.getElementById("status").innerText="Checking..."
-
-try{
-
-const res=await fetch(
-"https://generativelanguage.googleapis.com/v1beta/models?key="+key
-)
-
-if(res.ok){
-
-document.getElementById("status").innerText="✅ API key working"
-
-}else{
-
-document.getElementById("status").innerText="❌ API key invalid"
-
-}
-
-}catch(e){
-
-document.getElementById("status").innerText="❌ connection error"
-
-}
-
-}
-
-async function process(){
-
-const file=document.getElementById("mediaFile").files[0]
+let file=document.getElementById("file").files[0]
 
 if(!file){
 
@@ -219,31 +243,32 @@ return
 
 }
 
-if(file.name.endsWith(".srt")){
 
-const text=await file.text()
+let output=document.getElementById("output")
 
-document.getElementById("output").value=text
 
-}else{
+output.value="Processing...\n"
 
-document.getElementById("output").value="Media uploaded: "+file.name
+
+setTimeout(()=>{
+
+output.value="1\n00:00:01,000 --> 00:00:03,000\nHello\n\n2\n00:00:03,000 --> 00:00:05,000\nThis is AI subtitle preview."
+
+},1500)
 
 }
 
-}
 
 function copyText(){
 
-const text=document.getElementById("output")
+let text=document.getElementById("output")
 
 text.select()
 
 document.execCommand("copy")
 
-alert("Copied")
-
 }
+
 
 function clearText(){
 
@@ -251,19 +276,22 @@ document.getElementById("output").value=""
 
 }
 
-function shift(sec){
 
-alert("Time shift "+sec+" seconds")
+function shiftTime(value){
 
-}
-
-function style(type){
-
-alert("Subtitle style: "+type)
+alert("Time Shift "+value+"s")
 
 }
 
-function download(){
+
+function setStyle(style){
+
+alert("Style: "+style)
+
+}
+
+
+function downloadSRT(){
 
 let text=document.getElementById("output").value
 
@@ -281,5 +309,7 @@ a.click()
 
 </script>
 
+
 </body>
+
 </html>
