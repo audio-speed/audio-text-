@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>AI Subtitle Tool</title>
 
@@ -11,45 +13,32 @@
 
 </head>
 
-<body class="bg-gradient-to-br from-slate-900 to-blue-900 min-h-screen text-white p-6">
+<body class="bg-gradient-to-br from-slate-900 to-blue-900 min-h-screen text-white p-4">
 
-<h1 class="text-2xl font-bold mb-6 text-center">
+<div class="max-w-xl mx-auto space-y-6">
 
+<h1 class="text-2xl font-bold text-center">
 AI Subtitle Tool
-
 </h1>
 
+<!-- API KEY -->
 
-<div class="max-w-3xl mx-auto space-y-6">
-
-<!-- CONFIG -->
-
-<div class="bg-white/10 backdrop-blur-lg p-5 rounded-xl">
+<div class="bg-white/10 p-4 rounded-lg">
 
 <input id="apiKey"
-
 class="w-full p-3 rounded text-black"
-
 placeholder="Paste your Gemini API key">
 
-
 <button onclick="verifyKey()"
-
-class="w-full mt-3 bg-blue-500 hover:bg-blue-600 p-3 rounded">
-
+class="w-full mt-3 bg-blue-500 p-3 rounded">
 VERIFY
-
 </button>
 
-
 <select id="model"
-
 class="w-full mt-3 p-3 rounded text-black">
 
 <option>Gemini 3 Flash Preview</option>
-
 <option>Gemini 3.1 Pro Preview</option>
-
 <option>Gemini 3.1 Flash Lite Preview</option>
 
 </select>
@@ -57,32 +46,22 @@ class="w-full mt-3 p-3 rounded text-black">
 </div>
 
 
-<!-- UPLOAD -->
+<!-- FILE UPLOAD -->
 
-<div class="bg-white/10 backdrop-blur-lg p-5 rounded-xl">
+<div class="bg-white/10 p-4 rounded-lg">
 
 <input type="file"
-
-id="file"
-
+id="fileInput"
 accept=".mp4,.mp3,.srt"
-
 class="w-full">
 
-
-<p class="text-sm opacity-70 mt-2">
-
-MP4 MP3 SRT (MAX 1GB)
-
+<p class="text-sm mt-2 opacity-70">
+MP4, MP3, SRT (MAX 1GB)
 </p>
 
-
 <button onclick="startProcessing()"
-
-class="w-full mt-4 bg-blue-500 hover:bg-blue-600 p-3 rounded">
-
+class="w-full mt-4 bg-blue-500 p-3 rounded">
 START PROCESSING
-
 </button>
 
 </div>
@@ -91,31 +70,23 @@ START PROCESSING
 <!-- OUTPUT -->
 
 <textarea id="output"
-
 class="w-full h-60 p-3 rounded text-black"
-
 placeholder="Output Preview">
-
 </textarea>
 
+
+<!-- COPY CLEAR -->
 
 <div class="grid grid-cols-2 gap-3">
 
 <button onclick="copyText()"
-
 class="bg-green-500 p-3 rounded">
-
 Copy
-
 </button>
 
-
 <button onclick="clearText()"
-
 class="bg-red-500 p-3 rounded">
-
 Clear
-
 </button>
 
 </div>
@@ -123,101 +94,67 @@ Clear
 
 <!-- TIME SHIFT -->
 
-<h2 class="mt-4 font-bold">
-
+<h2 class="font-bold">
 Time Shift
-
 </h2>
-
 
 <div class="grid grid-cols-3 gap-3">
 
 <button onclick="shiftTime(-0.5)"
-
 class="bg-blue-500 p-2 rounded">
-
 -0.5s
-
 </button>
-
 
 <button onclick="shiftTime(0)"
-
 class="bg-blue-500 p-2 rounded">
-
 0.0s
-
 </button>
 
-
 <button onclick="shiftTime(0.5)"
-
 class="bg-blue-500 p-2 rounded">
-
 +0.5s
-
 </button>
 
 </div>
 
 
-<!-- STYLE -->
+<!-- SRT STYLE -->
 
-<h2 class="mt-4 font-bold">
-
+<h2 class="font-bold">
 SRT Style
-
 </h2>
-
 
 <div class="grid grid-cols-2 gap-3">
 
 <button onclick="setStyle('casual')"
-
 class="bg-blue-500 p-2 rounded">
-
 SRT 1 (Casual)
-
 </button>
-
 
 <button onclick="setStyle('polite')"
-
 class="bg-blue-500 p-2 rounded">
-
 SRT 2 (Polite)
-
 </button>
-
 
 <button onclick="setStyle('wuxia')"
-
 class="bg-blue-500 p-2 rounded">
-
 SRT 3 (Epic Wuxia)
-
 </button>
 
-
 <button onclick="setStyle('master')"
-
 class="bg-blue-500 p-2 rounded">
-
 SRT 4 (Grand Master)
-
 </button>
 
 </div>
 
 
+<!-- DOWNLOAD -->
+
 <button onclick="downloadSRT()"
-
-class="w-full mt-4 bg-purple-600 p-3 rounded">
-
+class="w-full bg-purple-600 p-3 rounded">
 Download SRT
-
 </button>
-
 
 </div>
 
@@ -226,6 +163,13 @@ Download SRT
 
 function verifyKey(){
 
+let key=document.getElementById("apiKey").value
+
+if(key==""){
+alert("Enter API Key")
+return
+}
+
 alert("API Key Verified")
 
 }
@@ -233,28 +177,22 @@ alert("API Key Verified")
 
 function startProcessing(){
 
-let file=document.getElementById("file").files[0]
+let file=document.getElementById("fileInput").files[0]
 
 if(!file){
-
-alert("Upload file first")
-
+alert("Please upload file")
 return
+}
+
+let reader=new FileReader()
+
+reader.onload=function(e){
+
+document.getElementById("output").value=e.target.result
 
 }
 
-
-let output=document.getElementById("output")
-
-
-output.value="Processing...\n"
-
-
-setTimeout(()=>{
-
-output.value="1\n00:00:01,000 --> 00:00:03,000\nHello\n\n2\n00:00:03,000 --> 00:00:05,000\nThis is AI subtitle preview."
-
-},1500)
+reader.readAsText(file)
 
 }
 
@@ -266,6 +204,8 @@ let text=document.getElementById("output")
 text.select()
 
 document.execCommand("copy")
+
+alert("Copied")
 
 }
 
@@ -279,14 +219,14 @@ document.getElementById("output").value=""
 
 function shiftTime(value){
 
-alert("Time Shift "+value+"s")
+alert("Time Shift "+value+" seconds")
 
 }
 
 
 function setStyle(style){
 
-alert("Style: "+style)
+alert("Style changed to "+style)
 
 }
 
@@ -308,7 +248,6 @@ a.click()
 }
 
 </script>
-
 
 </body>
 
