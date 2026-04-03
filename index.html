@@ -4,7 +4,6 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>AI Subtitle Tool</title>
@@ -37,9 +36,9 @@ VERIFY
 <select id="model"
 class="w-full mt-3 p-3 rounded text-black">
 
-<option>Gemini 3 Flash Preview</option>
-<option>Gemini 3.1 Pro Preview</option>
-<option>Gemini 3.1 Flash Lite Preview</option>
+<option value="gemini-1.5-flash">Gemini 3 Flash Preview</option>
+<option value="gemini-1.5-pro">Gemini 3.1 Pro Preview</option>
+<option value="gemini-1.5-flash">Gemini 3.1 Flash Lite Preview</option>
 
 </select>
 
@@ -52,11 +51,11 @@ class="w-full mt-3 p-3 rounded text-black">
 
 <input type="file"
 id="fileInput"
-accept=".mp4,.mp3,.srt"
+accept=".srt"
 class="w-full">
 
 <p class="text-sm mt-2 opacity-70">
-MP4, MP3, SRT (MAX 1GB)
+Upload SRT file
 </p>
 
 <button onclick="startProcessing()"
@@ -118,37 +117,6 @@ class="bg-blue-500 p-2 rounded">
 </div>
 
 
-<!-- SRT STYLE -->
-
-<h2 class="font-bold">
-SRT Style
-</h2>
-
-<div class="grid grid-cols-2 gap-3">
-
-<button onclick="setStyle('casual')"
-class="bg-blue-500 p-2 rounded">
-SRT 1 (Casual)
-</button>
-
-<button onclick="setStyle('polite')"
-class="bg-blue-500 p-2 rounded">
-SRT 2 (Polite)
-</button>
-
-<button onclick="setStyle('wuxia')"
-class="bg-blue-500 p-2 rounded">
-SRT 3 (Epic Wuxia)
-</button>
-
-<button onclick="setStyle('master')"
-class="bg-blue-500 p-2 rounded">
-SRT 4 (Grand Master)
-</button>
-
-</div>
-
-
 <!-- DOWNLOAD -->
 
 <button onclick="downloadSRT()"
@@ -170,29 +138,56 @@ alert("Enter API Key")
 return
 }
 
-alert("API Key Verified")
+alert("API Key OK")
 
 }
 
 
-function startProcessing(){
+async function startProcessing(){
 
 let file=document.getElementById("fileInput").files[0]
+let apiKey=document.getElementById("apiKey").value
+let model=document.getElementById("model").value
 
 if(!file){
-alert("Please upload file")
+alert("Upload SRT file first")
 return
 }
 
-let reader=new FileReader()
-
-reader.onload=function(e){
-
-document.getElementById("output").value=e.target.result
-
+if(apiKey==""){
+alert("Enter Gemini API Key")
+return
 }
 
-reader.readAsText(file)
+let text=await file.text()
+
+document.getElementById("output").value="Processing..."
+
+let prompt="Translate this subtitle to Burmese and keep SRT format:\n"+text
+
+let response=await fetch(
+"https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent?key="+apiKey,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+contents:[
+{
+parts:[
+{ text: prompt }
+]
+}
+]
+})
+})
+
+let data=await response.json()
+
+let result=data.candidates[0].content.parts[0].text
+
+document.getElementById("output").value=result
 
 }
 
@@ -219,14 +214,7 @@ document.getElementById("output").value=""
 
 function shiftTime(value){
 
-alert("Time Shift "+value+" seconds")
-
-}
-
-
-function setStyle(style){
-
-alert("Style changed to "+style)
+alert("Time shift "+value+" seconds")
 
 }
 
@@ -241,7 +229,7 @@ let a=document.createElement("a")
 
 a.href=URL.createObjectURL(blob)
 
-a.download="subtitle.srt"
+a.download="subtitle_mm.srt"
 
 a.click()
 
