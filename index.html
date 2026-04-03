@@ -1,174 +1,285 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ko Paing - Media AI Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background-color: #080d1a; color: white; font-family: 'Inter', sans-serif; }
-        .glass-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 32px; }
-        .input-box { background: #1e293b; border: 1px solid #334155; border-radius: 16px; cursor: pointer; transition: 0.2s; }
-        .input-box:hover { border-color: #3b82f6; }
-        .step-badge { background: #2563eb; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
-        
-        /* Tab System Style */
-        .tab-btn { flex: 1; padding: 12px; font-size: 13px; font-weight: 600; color: #94a3b8; border-radius: 12px; transition: 0.3s; }
-        .tab-btn.active { background: #38bdf8; color: #080d1a; }
-        
-        /* Modal Style */
-        .modal-overlay { background: rgba(0, 0, 0, 0.85); display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #1e293b; width: 100%; max-width: 360px; border-radius: 28px; overflow: hidden; border: 1px solid #334155; }
-        .list-item { display: flex; items-center: center; justify-content: space-between; padding: 16px 20px; cursor: pointer; border-bottom: 1px solid #334155; }
-        .list-item:hover { background: #2d3748; }
-        .radio-circle { width: 18px; height: 18px; border: 2px solid #4b5563; border-radius: 50%; position: relative; }
-        .active-radio .radio-circle { border-color: #f97316; }
-        .active-radio .radio-circle::after { content: ''; position: absolute; inset: 3px; background: #f97316; border-radius: 50%; }
+<meta charset="UTF-8">
+<title>AI Subtitle Tool</title>
 
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    </style>
+<style>
+
+body{
+background:#0b1b2b;
+color:white;
+font-family:sans-serif;
+padding:20px;
+}
+
+.box{
+background:#13263a;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+}
+
+select,input,textarea,button{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+}
+
+button{
+background:#3b82f6;
+color:white;
+font-size:14px;
+}
+
+.preview{
+height:200px;
+background:#111;
+color:#0f0;
+}
+
+.row{
+display:flex;
+gap:10px;
+}
+
+.row button{
+flex:1;
+}
+
+.upload-box{
+border:2px dashed #3b82f6;
+padding:30px;
+text-align:center;
+border-radius:12px;
+cursor:pointer;
+}
+
+</style>
+
 </head>
-<body class="flex flex-col items-center py-10 px-5">
+<body>
 
-    <div class="glass-card w-full max-w-[400px] p-7 shadow-2xl mb-10">
-        
-        <div class="mb-8">
-            <div class="flex items-center gap-3 mb-4">
-                <span class="step-badge">1</span>
-                <h2 class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">Configuration</h2>
-            </div>
-            <div class="input-box relative mb-3 p-4 flex items-center">
-                <i class="fas fa-key text-slate-500 mr-3"></i>
-                <input type="password" placeholder="Paste your Gemini API Key" class="bg-transparent w-full text-sm outline-none">
-            </div>
-            <div onclick="openModal('model')" class="input-box p-4 flex justify-between items-center text-sm mb-3">
-                <div class="flex items-center gap-3"><i class="fas fa-microchip text-slate-500"></i><span id="selectedModel">Gemini 2.5 Flash</span></div>
-                <i class="fas fa-chevron-down text-xs text-slate-500"></i>
-            </div>
-        </div>
+<h2>AI Subtitle Tool</h2>
 
-        <div class="grid grid-cols-2 gap-3 mb-8">
-            <div onclick="openModal('source')">
-                <p class="text-[10px] text-slate-500 font-bold uppercase mb-2 ml-1">Audio Language</p>
-                <div class="input-box p-3.5 flex justify-between items-center text-xs">
-                    <span id="srcLang">Auto-detect</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-500"></i>
-                </div>
-            </div>
-            <div onclick="openModal('target')">
-                <p class="text-[10px] text-slate-500 font-bold uppercase mb-2 ml-1">Output Language</p>
-                <div class="input-box p-3.5 flex justify-between items-center text-xs">
-                    <span id="tarLang">Burmese</span>
-                    <i class="fas fa-chevron-down text-[10px] text-slate-500"></i>
-                </div>
-            </div>
-        </div>
+<h3>1 CONFIGURATION</h3>
 
-        <div class="mb-8">
-            <div class="flex items-center gap-3 mb-4">
-                <span class="step-badge">2</span>
-                <h2 class="text-[11px] font-bold tracking-widest text-slate-400 uppercase">Media Upload</h2>
-            </div>
-            <div class="border-2 border-dashed border-slate-700 rounded-3xl p-10 flex flex-col items-center text-center hover:bg-slate-800/30 transition">
-                <i class="fas fa-cloud-upload-alt text-blue-500 text-2xl mb-3"></i>
-                <p class="text-xs font-semibold">Click or drag media file here</p>
-                <p class="text-[10px] text-slate-500 mt-2">MP4, MP3, WAV (Max 2GB)</p>
-            </div>
-        </div>
+<div class="box">
 
-        <button class="w-full bg-slate-800 text-slate-500 font-bold py-5 rounded-3xl text-xs uppercase tracking-widest opacity-50 cursor-not-allowed">
-            Start Processing
-        </button>
-    </div>
+<input id="apikey" placeholder="Paste your Gemini API key">
 
-    <div class="glass-card w-full max-w-[400px] p-7 shadow-2xl">
-        <h2 class="text-xl font-bold mb-1">Output</h2>
-        <h2 class="text-xl font-bold mb-6">Result</h2>
-        
-        <div class="flex items-center justify-between mb-5">
-            <p class="text-[11px] font-extrabold text-slate-500 tracking-wider">SUCCESS</p>
-            <button class="bg-[#1e293b] border border-slate-700 px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2">
-                <i class="fas fa-download"></i> <span id="dlLabel">Download .SRT</span>
-            </button>
-        </div>
+<button onclick="verifyKey()">VERIFY</button>
 
-        <div class="bg-slate-900/50 p-1 rounded-2xl flex gap-1 mb-5 border border-slate-800">
-            <button onclick="switchTab('srt')" id="tab-srt" class="tab-btn active">SRT</button>
-            <button onclick="switchTab('transcript')" id="tab-transcript" class="tab-btn">Transcript</button>
-            <button onclick="switchTab('tts')" id="tab-tts" class="tab-btn">TTS Prompt</button>
-        </div>
+<p id="status"></p>
 
-        <div id="resultContent" class="bg-[#050a14] border border-slate-800 rounded-2xl p-5 min-h-[200px] max-h-[300px] overflow-y-auto custom-scroll text-sm text-slate-300 leading-relaxed">
-            Loading result...
-        </div>
-    </div>
+<select id="model">
 
-    <div id="selectModal" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-content animate-in fade-in zoom-in duration-200">
-            <div class="p-5 border-b border-slate-700 flex justify-between items-center">
-                <h3 id="modalTitle" class="font-bold">Select Option</h3>
-                <i class="fas fa-times cursor-pointer text-slate-500" onclick="closeModal()"></i>
-            </div>
-            <div id="modalList" class="max-h-[400px] overflow-y-auto custom-scroll"></div>
-        </div>
-    </div>
+<option value="gemini-3-flash">Gemini 3 Flash Preview</option>
 
-    <script>
-        const data = {
-            model: ['Gemini 2.5 Flash', 'Gemini 2.5 Pro', 'Gemini 2.0 Flash', 'Gemma 3 4B', 'Gemma 3 12B'],
-            source: ['Auto-detect Language', 'English', 'Burmese', 'Thai', 'Chinese', 'Japanese'],
-            target: ['Same as Audio', 'English', 'Burmese (မြန်မာဘာသာ)', 'Thai', 'Chinese', 'Spanish']
-        };
+<option value="gemini-3.1-pro">Gemini 3.1 Pro Preview</option>
 
-        const resultTexts = {
-            srt: "1<br>00:00:06,000 --> 00:00:11,500<br>ဒါကို တောင်စောင်းကျောက်လို့ ခေါ်တယ်။",
-            transcript: "ဒါကို တောင်စောင်းကျောက်လို့ ခေါ်တယ်။ လာရောက်လည်ပတ်သူတွေက သူတို့ရဲ့ မှတ်ပုံတင်ကို တင်လိုက်တာနဲ့ သိပါလိမ့်မယ်။",
-            tts: "A narrative voice that starts calm and informative, transitions to a tone of disappointment..."
-        };
+<option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite Preview</option>
 
-        let currentModalType = '';
+</select>
 
-        function openModal(type) {
-            currentModalType = type;
-            const title = type === 'model' ? 'Select AI Model' : (type === 'source' ? 'Audio Language' : 'Output Language');
-            document.getElementById('modalTitle').innerText = title;
-            
-            const list = document.getElementById('modalList');
-            list.innerHTML = '';
-            
-            data[type].forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerHTML = `<span class="text-sm">${item}</span><div class="radio-circle"></div>`;
-                div.onclick = () => selectItem(item);
-                list.appendChild(div);
-            });
-            document.getElementById('selectModal').style.display = 'flex';
-        }
+</div>
 
-        function selectItem(item) {
-            if(currentModalType === 'model') document.getElementById('selectedModel').innerText = item;
-            if(currentModalType === 'source') document.getElementById('srcLang').innerText = item;
-            if(currentModalType === 'target') document.getElementById('tarLang').innerText = item;
-            closeModal();
-        }
+<h3>2 MEDIA UPLOAD</h3>
 
-        function closeModal(e) {
-            if(!e || e.target.id === 'selectModal' || e.target.classList.contains('fa-times')) {
-                document.getElementById('selectModal').style.display = 'none';
-            }
-        }
+<div class="box">
 
-        function switchTab(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + type).classList.add('active');
-            document.getElementById('resultContent').innerHTML = resultTexts[type];
-            document.getElementById('dlLabel').innerText = "Download ." + (type === 'srt' ? 'SRT' : (type === 'transcript' ? 'TXT' : 'Prompt'));
-        }
+<div class="upload-box">
 
-        window.onload = () => switchTab('srt');
-    </script>
+<input type="file" id="mediaFile"
+accept=".mp4,.mp3,.srt">
+
+<p>Click to upload media or SRT file</p>
+
+<p>MP4, MP3, SRT (MAX 1GB)</p>
+
+</div>
+
+<button onclick="process()">START PROCESSING</button>
+
+</div>
+
+<h3>Output Preview</h3>
+
+<textarea id="output" class="preview"></textarea>
+
+<div class="row">
+
+<button onclick="copyText()">Copy</button>
+
+<button onclick="clearText()">Clear</button>
+
+</div>
+
+<h3>Time Shift</h3>
+
+<div class="row">
+
+<button onclick="shift(-0.5)">-0.5s</button>
+
+<button onclick="shift(0)">0.0s</button>
+
+<button onclick="shift(0.5)">+0.5s</button>
+
+</div>
+
+<h3>SRT Style</h3>
+
+<div class="row">
+
+<button onclick="style('casual')">SRT 1 (Casual)</button>
+
+<button onclick="style('polite')">SRT 2 (Polite)</button>
+
+<button onclick="style('wuxia')">SRT 3 (Epic Wuxia)</button>
+
+<button onclick="style('master')">SRT 4 (Grand Master)</button>
+
+</div>
+
+<button onclick="download()">Download SRT</button>
+
+<script>
+
+const fileInput=document.getElementById("mediaFile");
+
+fileInput.addEventListener("change",function(){
+
+const file=this.files[0];
+
+if(!file){return;}
+
+const maxSize=1024*1024*1024;
+
+if(file.size>maxSize){
+
+alert("File too large! Max 1GB allowed.");
+
+this.value="";
+
+return;
+
+}
+
+});
+
+async function verifyKey(){
+
+const key=document.getElementById("apikey").value
+
+if(!key){
+
+alert("Paste API key first")
+
+return
+
+}
+
+document.getElementById("status").innerText="Checking..."
+
+try{
+
+const res=await fetch(
+"https://generativelanguage.googleapis.com/v1beta/models?key="+key
+)
+
+if(res.ok){
+
+document.getElementById("status").innerText="✅ API key working"
+
+}else{
+
+document.getElementById("status").innerText="❌ API key invalid"
+
+}
+
+}catch(e){
+
+document.getElementById("status").innerText="❌ connection error"
+
+}
+
+}
+
+async function process(){
+
+const file=document.getElementById("mediaFile").files[0]
+
+if(!file){
+
+alert("Upload file first")
+
+return
+
+}
+
+if(file.name.endsWith(".srt")){
+
+const text=await file.text()
+
+document.getElementById("output").value=text
+
+}else{
+
+document.getElementById("output").value="Media uploaded: "+file.name
+
+}
+
+}
+
+function copyText(){
+
+const text=document.getElementById("output")
+
+text.select()
+
+document.execCommand("copy")
+
+alert("Copied")
+
+}
+
+function clearText(){
+
+document.getElementById("output").value=""
+
+}
+
+function shift(sec){
+
+alert("Time shift "+sec+" seconds")
+
+}
+
+function style(type){
+
+alert("Subtitle style: "+type)
+
+}
+
+function download(){
+
+let text=document.getElementById("output").value
+
+let blob=new Blob([text],{type:"text/plain"})
+
+let a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="subtitle.srt"
+
+a.click()
+
+}
+
+</script>
+
 </body>
 </html>
